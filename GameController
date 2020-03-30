@@ -1,54 +1,43 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
 
-public class GameController : MonoBehaviour
+public class DestroyByContact : MonoBehaviour
 {
-    public GameObject hazard;
-    public Vector3 spawnValues;
-    public int hazardCount;
-    public float spawnWait;
-    public float startWait;
-    public float waveWait;
+    public GameObject explosion;
+    public GameObject playerExplosion;
+    public int scoreValue;
+    private GameController gameController;
 
-    public Text ScoreText;
-    private int score;
     void Start()
     {
-        score = 0;
-        UpdateScore();
-        StartCoroutine(SpawnWaves());
-    }
-
-    IEnumerator SpawnWaves()
-    {
-        yield return new WaitForSeconds(startWait);
-        while (true)
+        GameObject gameControllerObject = GameObject.FindGameObjectWithTag("GameController");
+        if (gameControllerObject != null)
         {
-            for (int i = 0; i < hazardCount; i++)
-            {
-                Vector3 spawnPosition = new Vector3(Random.Range(-spawnValues.x, spawnValues.x), spawnValues.y, spawnValues.z);
-                Quaternion spawnRotation = Quaternion.identity;
-                Instantiate(hazard, spawnPosition, spawnRotation);
-                yield return new WaitForSeconds(spawnWait);
-            }
-            yield return new WaitForSeconds(waveWait);
-            if (Input.GetKey("escape"))
-                Application.Quit();
-        
+            gameController = gameControllerObject.GetComponent<GameController>();
+        }
+        if (gameController == null)
+        {
+            Debug.Log("Cannot find 'GameController' script");
+        }
     }
 
-    }
-
-    public void AddScore(int newScoreValue)
+    void OnTriggerEnter(Collider other)
     {
-        score += newScoreValue;
-        UpdateScore();
-    }
+        if (other.tag == "Boundary" || other.tag == "Enemy")
+        {
+            return;
+        }
 
-    void UpdateScore()
-    {
-        ScoreText.text = "Score: " + score;
-    }
+        if (explosion != null)
+        {
+            Instantiate(explosion, transform.position, transform.rotation);
+        }
 
+        if (other.tag == "Player")
+      
+
+        gameController.AddScore(scoreValue);
+        Destroy(other.gameObject );
+        Destroy(gameObject);
+    }
 }
